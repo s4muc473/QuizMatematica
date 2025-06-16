@@ -1,233 +1,74 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz de Matemática Financeira</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #e0f7fa, #f1f8e9);
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 420px;
-            width: 100%;
-            background: white;
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            transition: background-color 0.4s ease;
-        }
-
-        .shake {
-            animation: shake 0.3s;
-        }
-
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
-        }
-
-        h1 {
-            font-size: 1.8em;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin: 20px 0;
-        }
-
-        button {
-            padding: 14px;
-            font-size: 1em;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            background-color: #00aaff;
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #0077aa;
-            transform: scale(1.02);
-        }
-
-        #nextBtn {
-            background-color: #444;
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        #feedback {
-            font-weight: bold;
-            margin-top: 10px;
-            color: #444;
-        }
-
-        p {
-            color: #555;
-            font-size: 1em;
-        }
-
-        .emoji {
-            font-size: 3em;
-            position: absolute;
-            animation: pop 1s ease forwards;
-        }
-
-        @keyframes pop {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-100px) scale(1.8);
-            }
-        }
-    </style>
+    <title>geolocalização</title>
 </head>
 
 <body>
-    <div class="container">
-        <h1>Quiz de Matemática Financeira</h1>
-        <div id="question-container">
-            <p id="question">Carregando pergunta...</p>
-            <div class="buttons">
-                <button id="btn1" onclick="selectAnswer(0)">Opção 1</button>
-                <button id="btn2" onclick="selectAnswer(1)">Opção 2</button>
-            </div>
-            <p id="feedback"></p>
-            <p>Pontos: <span id="score">0</span> | Erros: <span id="errors">0</span></p>
-            <button id="nextBtn" onclick="nextQuestion()">Próxima Pergunta</button>
-        </div>
-    </div>
+    <button onclick="localizationPushCTO()">localizar CTO</button>
+    <button onclick="localizationPushClient()">localizar Cliente</button>
 
     <script>
-        const questions = [
-            {
-                question: "Se um produto custa R$80 e recebe um desconto de 25%, qual o novo preço?",
-                options: ["R$60", "R$65"],
-                correct: 0
-            },
-            {
-                question: "Se você tem R$120 e gasta 30%, quanto sobra?",
-                options: ["R$90", "R$84"],
-                correct: 1
-            },
-            {
-                question: "Qual é 10% de R$250?",
-                options: ["R$25", "R$20"],
-                correct: 0
-            },
-            {
-                question: "Se um brinquedo aumenta 20% sobre R$50, qual o novo valor?",
-                options: ["R$55", "R$60"],
-                correct: 1
-            },
-            {
-                question: "João tinha R$200 e economizou 15%. Quanto ele economizou?",
-                options: ["R$30", "R$15"],
-                correct: 0
-            }
-        ];
+        function localizationPushClient() {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    alert(`https://www.google.com/maps?q=${lat},${lon}`);
+                    const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+                    console.log("Localização do cliente: ", mapsLink);
+                    // setValue('mapslinkclient', mapsLink);
 
-        let current = 0;
-        let score = 0;
-        let errors = 0;
+                    const linkLoc = document.createElement('a');
+                    linkLoc.href = `https://www.google.com/maps?q=${lat},${lon}`;
+                    linkLoc.textContent = "localização atual"
+                    linkLoc.target = '_blank'
+                    document.body.appendChild(linkLoc);
+                },
+                (error) => {
+                    console.error("Erro ao obter localização do cliente:", error.message);
 
-        function loadQuestion() {
-            const q = questions[current];
-            document.getElementById("question").innerText = q.question;
-            document.getElementById("btn1").innerText = q.options[0];
-            document.getElementById("btn2").innerText = q.options[1];
-            document.getElementById("feedback").innerText = "";
-            document.getElementById("nextBtn").style.display = "none";
-            document.querySelector(".container").style.backgroundColor = "white";
+                    // setValue('mapslinkclient', "");
+                },
+
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            );
         }
 
-        function createEmoji(effect) {
-            const quantity = effect === 'happy' ? 6 : 3;
-            for (let i = 0; i < quantity; i++) {
-                const emoji = document.createElement("div");
-                emoji.className = "emoji";
-                emoji.innerText = effect === 'happy' ? "🎉" : "😢";
-                emoji.style.left = Math.random() * 80 + 10 + "%";
-                emoji.style.top = "50%";
-                document.querySelector(".container").appendChild(emoji);
-                setTimeout(() => emoji.remove(), 1200);
-            }
-        }
+        function localizationPushCTO() {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+                    console.log("Localização da CTO: ", mapsLink);
+                    // setValue('mapslinkcto', mapsLink);
 
-        function selectAnswer(index) {
-            const container = document.querySelector(".container");
-            const q = questions[current];
-            if (index === q.correct) {
-                score++;
-                document.getElementById("feedback").innerText = "✅ Resposta certa!";
-                container.style.backgroundColor = "#d0f8ce";
-                createEmoji("happy");
-            } else {
-                errors++;
-                document.getElementById("feedback").innerText = "❌ Resposta errada!";
-                container.style.backgroundColor = "#ffdede";
-                container.classList.add("shake");
-                createEmoji("sad");
-                setTimeout(() => container.classList.remove("shake"), 300);
-            }
-            document.getElementById("score").innerText = score;
-            document.getElementById("errors").innerText = errors;
-            document.getElementById("nextBtn").style.display = "inline-block";
+                    const linkLoc = document.createElement('a');
+                    linkLoc.href = `https://www.google.com/maps?q=${lat},${lon}`;
+                    linkLoc.textContent = "localização atual"
+                    linkLoc.target = '_blank'
+                    document.body.appendChild(linkLoc);
+                },
+                (error) => {
+                    console.error("Erro ao obter localização do cliente:", error.message);
+                    // setValue('mapslinkcto', "");
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            );
         }
-
-        function nextQuestion() {
-            current++;
-            if (current < questions.length) {
-                loadQuestion();
-            } else {
-                document.getElementById("question-container").innerHTML = `
-                    <h2>Fim do jogo!</h2>
-                    <p>Acertos: ${score}</p>
-                    <p>Erros: ${errors}</p>
-                    <button onclick="restart()">Recomeçar</button>
-                `;
-            }
-        }
-
-        function restart() {
-            current = 0;
-            score = 0;
-            errors = 0;
-            document.getElementById("score").innerText = score;
-            document.getElementById("errors").innerText = errors;
-            loadQuestion();
-        }
-
-        window.onload = loadQuestion;
     </script>
 </body>
 
